@@ -1,14 +1,19 @@
 //auth.service.ts
 import { Injectable } from '@nestjs/common'; 
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 	export class AuthService {
-		constructor(private jwtService: JwtService) {}
+		constructor(
+			private jwtService: JwtService,
+			private usersService: UsersService
+		) {}
 		
-		validateUser(email: string, password: string) {
-			if (email == 'admin@api.com' && password == '1234') {
-				return { id: 1, email }
+		async validateUser(email: string, password: string) {
+			const user = await this.usersService.findByEmail(email);
+			if (user && user.password === password) {
+				return { id: user.id, email: user.email };
 			}
 			return null;
 		}
